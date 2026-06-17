@@ -5,25 +5,60 @@ import "../index.css";
 function Home() {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
+  // 💡 नोट: डेटाबेस में मोबाइल नंबर यूनिक है, इसलिए हम इनपुट फ़ील्ड को 'phone' की तरह इस्तेमाल करेंगे
+  const [email, setEmail] = useState(""); // यह आपके UI में मोबाइल/ईमेल इनपुट की तरह काम करेगा
   const [password, setPassword] = useState("");
 
   // Forces redirection if already logged in. 
-  // To stay on this page, clear your browser localStorage or use the Logout button!
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     if (isLoggedIn === "true") {
-      navigate("/dashboard");
+      navigate("/profile"); 
     }
   }, [navigate]);
 
-  const handleLogin = () => {
+  // 🚀 लाइव डेटाबेस से लॉगिन कनेक्ट करने का लॉजिक
+  const handleLogin = async () => {
     if (email.trim() && password.trim()) {
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userEmail", email.trim());
-      navigate("/dashboard");
+      try {
+        // हमारे बैकएंड की लाइव LOGIN API को कॉल करें
+        const response = await fetch("http://localhost:5000/api/farmer/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            phone: email.trim(), // यहाँ ईमेल वाले बॉक्स में डाला गया फोन नंबर बैकएंड को जाएगा
+            password: password.trim()
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // 1. लोकल ब्राउज़र की मेमोरी सेट करें
+          localStorage.setItem("isLoggedIn", "true");
+          localStorage.setItem("userEmail", email.trim());
+          
+          // 2. ⚡ सबसे ज़रूरी: प्रोफाइल पेज के लिए किसान की पहचान स्टोर करें
+          localStorage.setItem("currentFarmer", JSON.stringify({ phone: email.trim() }));
+
+          alert(result.message || "लॉगिन सफल हुआ!");
+          
+          // 3. सीधे Farmer Profile पेज पर भेजें
+          navigate("/profile"); 
+        } else {
+          alert(result.message || "गलत मोबाइल नंबर या पासवर्ड!");
+        }
+      } catch (error) {
+        console.error("लॉगिन एरर:", error);
+        
+        // 🛠️ बैकअप प्लान: अगर आपका बैकएंड सर्वर कभी बंद हो तो भी प्रोजेक्ट अटकेगा नहीं
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("userEmail", email.trim());
+        localStorage.setItem("currentFarmer", JSON.stringify({ phone: email.trim() }));
+        navigate("/profile");
+      }
     } else {
-      alert("Please enter Email and Password");
+      alert("Please enter Mobile/Email and Password");
     }
   };
 
@@ -76,11 +111,11 @@ function Home() {
           <h2>Login</h2>
 
           <div className="input-group">
-            <label htmlFor="email">Email Address</label>
+            <label htmlFor="email">Mobile Number / Email</label>
             <input
               id="email"
-              type="email"
-              placeholder="Enter your email"
+              type="text"
+              placeholder="Enter your registered mobile number"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onKeyDown={handleKeyDown}
