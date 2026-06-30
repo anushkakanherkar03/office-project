@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const pool = require('../config/db');
+const pool = require('../db');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret_change_me';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
@@ -40,11 +40,15 @@ function signToken(user) {
 
 async function signup(req, res) {
   try {
-    const fullName = normalizeText(req.body.full_name || req.body.fullName);
+    let fullName = normalizeText(req.body.full_name || req.body.fullName);
     const email = normalizeEmail(req.body.email);
     const password = normalizeText(req.body.password);
 
     console.log('[auth:signup] received email:', email);
+
+    if (!fullName && email) {
+      fullName = email.split('@')[0];
+    }
 
     if (!fullName || !email || !password) {
       return res.status(400).json({

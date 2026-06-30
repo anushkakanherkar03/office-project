@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS farmers (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  phone VARCHAR(20) UNIQUE,
+  email VARCHAR(255) UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  state VARCHAR(100),
+  district VARCHAR(100),
+  village VARCHAR(100),
+  farm_size NUMERIC,
+  land_unit VARCHAR(50) DEFAULT 'Acres',
+  crop_type VARCHAR(100),
+  past_crop VARCHAR(100),
+  past_fert VARCHAR(100),
+  last_watered TIMESTAMP,
+  notes TEXT,
+  profile_photo TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

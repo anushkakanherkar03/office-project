@@ -1,58 +1,59 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const navigate = useNavigate();
+  const { login, signup } = useAuth();
 
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleLogin = async (e) => {
+  const handleAuth = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        // Save token
-        localStorage.setItem("token", data.token);
-
-        // Optional user data
-        localStorage.setItem("user", JSON.stringify(data.user));
-
+      if (isRegistering) {
+        await signup({ email, password, full_name: fullName });
         setLoading(false);
-
-        // Redirect
-        navigate("/dashboard");
+        setIsRegistering(false); // Switch to login mode
+        setPassword(""); // Clear password field
+        alert("Registration successful! Please login with your credentials.");
       } else {
+        await login({ email, password });
         setLoading(false);
-        setError(data.message || "Invalid credentials");
+        navigate("/dashboard");
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       setLoading(false);
-      setError("Server error. Try again later.");
+      setError(err.message || "Authentication failed");
     }
   };
 
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h2>Login</h2>
+        <h2>{isRegistering ? "Sign Up" : "Login"}</h2>
 
-        <form onSubmit={handleLogin} style={styles.form}>
+        <form onSubmit={handleAuth} style={styles.form}>
+          {isRegistering && (
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              style={styles.input}
+              required
+            />
+          )}
+
           <input
             type="email"
             placeholder="Email"
@@ -74,9 +75,16 @@ function Login() {
           {error && <p style={styles.error}>{error}</p>}
 
           <button type="submit" style={styles.button} disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Please wait..." : isRegistering ? "Sign Up" : "Login"}
           </button>
         </form>
+
+        <p 
+          onClick={() => { setIsRegistering(!isRegistering); setError(""); }} 
+          style={{ cursor: "pointer", color: "blue", marginTop: "16px", fontSize: "14px" }}
+        >
+          {isRegistering ? "Already have an account? Login" : "Don't have an account? Sign Up"}
+        </p>
       </div>
     </div>
   );

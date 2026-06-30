@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../config/db");
+const pool = require("../db");
+const bcrypt = require("bcryptjs");
 
 const TABLE_SELECT = `
   SELECT *
@@ -63,7 +64,6 @@ async function upsertFarmer(req, res) {
     const current = existing.rows[0];
     const resolvedPhone = phone || current?.phone || null;
     const resolvedEmail = email || current?.email || null;
-    const resolvedPassword = password || current?.password || null;
 
     if (!resolvedPhone && !resolvedEmail) {
       return res.status(400).json({
@@ -72,7 +72,10 @@ async function upsertFarmer(req, res) {
       });
     }
 
-    if (!resolvedPassword && !current) {
+    let resolvedPassword = current?.password || null;
+    if (password) {
+      resolvedPassword = await bcrypt.hash(password, 12);
+    } else if (!current) {
       return res.status(400).json({
         success: false,
         message: "Password is required for the first save",
@@ -223,11 +226,21 @@ router.post("/login", async (req, res) => {
     }
 
     const result = await pool.query(
-      "SELECT * FROM farmers WHERE (phone = $1 OR LOWER(email) = LOWER($1)) AND password = $2 LIMIT 1",
-      [loginIdentifier, password]
+      "SELECT * FROM farmers WHERE phone = $1 OR LOWER(email) = LOWER($1) LIMIT 1",
+      [loginIdentifier]
     );
 
     if (result.rows.length === 0) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid mobile/email or password",
+      });
+    }
+
+    const farmer = result.rows[0];
+    const isPasswordValid = await bcrypt.compare(password, farmer.password);
+
+    if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
         message: "Invalid mobile/email or password",

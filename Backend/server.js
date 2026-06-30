@@ -1,40 +1,36 @@
 // server.js
 const cors = require("cors");
 const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const pool = require('./db');
+const initDb = require('./initDb');
+const authRoutes = require('./routes/authRoutes');
+const farmerRoutes = require('./routes/farmerRoutes');
+const { signup, login } = require('./controllers/authController');
+
 const app = express();
 
+// Initialize the database tables on startup
+initDb(pool);
 
 app.use(cors({
-    origin: 'http://localhost:5173', // React app
+    origin: (origin, callback) => {
+        if (!origin || origin.startsWith("http://localhost:")) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     credentials: true
 }));
 
 app.use(express.json());
 
-// Mock user database
-const users = []; 
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/farmer', farmerRoutes);
 
-// Sign Up Endpoint
-app.post('/api/signup', async (req, res) => {
-    const { email, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    users.push({ email, password: hashedPassword });
-    res.status(201).json({ message: "User created" });
-});
-
-// Login Endpoint
-app.post('/api/auth/login', async (req, res) => {
-    const { email, password } = req.body;
-    const user = users.find(u => u.email === email);
-    
-    if (user && await bcrypt.compare(password, user.password)) {
-        const token = jwt.sign({ email }, 'SECRET_KEY', { expiresIn: '1h' });
-        res.json({ token });
-    } else {
-        res.status(401).json({ message: "Invalid credentials" });
-    }
-});
+// Direct/legacy routes (used by index.html tests)
+app.post('/api/signup', signup);
+app.post('/api/login', login);
 
 app.listen(5000, () => console.log('Server running on http://localhost:5000'));

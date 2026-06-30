@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../index.css";
 
-function Dashboard() {
+function DiseaseDetection() {
   const navigate = useNavigate();
 
   const [activeModule, setActiveModule] = useState(null);
@@ -1105,4 +1105,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default DiseaseDetection;
