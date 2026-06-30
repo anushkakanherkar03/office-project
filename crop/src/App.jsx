@@ -1,21 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import Home from "./pages/Home";
-import Dashboard from "./pages/Dashboard";
-import FarmerProfile from "./pages/FarmerProfile";
+import Login from "./pages/Login";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* 1. सबसे पहले आपका पुराना सुंदर लॉगिन (Home) पेज खुलेगा */}
-        <Route path="/" element={<Home />} />
-        
-        {/* 2. होम पेज का लॉगिन बटन सीधे यहाँ भेजेगा */}
-        <Route path="/profile" element={<FarmerProfile />} />
-        
-        {/* 3. प्रोफाइल पेज का "Go To Dashboard" बटन यहाँ भेजेगा */}
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </BrowserRouter>
   );

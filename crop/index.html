@@ -1,13 +1,41 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>crop</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <title>Login / Sign Up</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+
+    <div class="auth-box">
+        <h2 id="title">Sign Up</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="auth()">Submit</button>
+        <p id="toggle" onclick="toggleMode()" style="cursor:pointer; color:blue;">Switch to Login</p>
+    </div>
+
+    <script>
+        let isLogin = false;
+        function toggleMode() {
+            isLogin = !isLogin;
+            document.getElementById('title').innerText = isLogin ? "Login" : "Sign Up";
+        }
+
+        async function auth() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // This sends the data to your Node.js backend
+            const res = await fetch(`http://localhost:5000/api/${isLogin ? 'login' : 'signup'}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const data = await res.json();
+            alert(data.token ? "Success!" : data.message);
+        }
+    </script>
+</body>
 </html>

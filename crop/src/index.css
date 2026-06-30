@@ -860,3 +860,74 @@ body{
 .topbar::after {
   display: none !important;
 }
+
+/* ==========================================================
+   SIDEBAR LAYOUT - नया अपडेट (Screenshot (31).png के लिए)
+   ========================================================== */
+
+/* 1. मुख्य लेआउट कंटेनर */
+.dashboard-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8faf9;
+}
+
+/* 2. साइडबार का स्टाइल (Dark Green) */
+.sidebar {
+  width: 280px;
+  background-color: #064e3b; /* डार्क ग्रीन शेड */
+  color: white;
+  padding: 30px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-logo {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 50px;
+  color: white;
+}
+
+/* 3. नेविगेशन मेन्यू */
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.nav-item {
+  padding: 15px;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+}
+
+.nav-item:hover, .nav-item.active {
+  background-color: #065f46; /* एक्टिव और होवर पर हल्का ग्रीन */
+}
+
+/* 4. मेन कंटेंट एरिया */
+.main-content-area {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+  background-color: #f4f7f5;
+}
+
+/* 5. रिस्पॉन्सिवनेस के लिए */
+@media (max-width: 768px) {
+  .dashboard-wrapper {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    height: auto;
+  }
+}
+

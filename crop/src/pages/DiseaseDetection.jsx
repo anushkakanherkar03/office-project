@@ -664,6 +664,10 @@ function Dashboard() {
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("userEmail");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("authUser");
+    localStorage.removeItem("currentFarmer");
+    localStorage.removeItem("farmer_password");
     navigate("/");
   };
 
